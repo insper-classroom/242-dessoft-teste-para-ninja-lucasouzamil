@@ -40,7 +40,7 @@ class Block(pygame.sprite.Sprite):
         self.image.blit(self.texto_renderizado, self.texto_rect)
 
     def checkClick(self):
-        global points
+        global points, lifes
         self.time_clicked=pygame.time.get_ticks()
         self.image.fill((0,0,0,0))
         self.fonte = pygame.font.Font(None, 30)
@@ -50,6 +50,7 @@ class Block(pygame.sprite.Sprite):
             self.texto_rect = self.texto_renderizado.get_rect(center=(SQUARE_SIZE // 2, SQUARE_SIZE // 2))
             self.image.blit(self.texto_renderizado, self.texto_rect)
         else:
+            lifes -= 1
             self.texto_renderizado = self.fonte.render("WRONG", True, (255, 0, 0))  
             self.texto_rect = self.texto_renderizado.get_rect(center=(SQUARE_SIZE // 2, SQUARE_SIZE // 2))
             self.image.blit(self.texto_renderizado, self.texto_rect)
@@ -69,6 +70,7 @@ for b in blocks:
 
 reset=True
 points = 0
+lifes = 3
 game_mode = 'menu'
 started_time = None
 
@@ -101,6 +103,7 @@ while True:
                 game_mode = 'running'
                 started_time = pygame.time.get_ticks()
                 points = 0
+                lifes = 3
 
         case 'running':
 
@@ -119,19 +122,23 @@ while True:
             block_group.draw(screen)
 
             font = pygame.font.Font(None, 50)
+
             gameover_text = font.render(f"Sum: {str(numbers[3])}", True, 'Black')
             gameover_text_rect = gameover_text.get_rect(topleft=(10, 10))
             screen.blit(gameover_text,gameover_text_rect)
 
-            time_text = font.render(f"{PLAY_TIME_SECONDS - left_time}", True, 'Black')
+            lifes_text = font.render(f"Lifes: {lifes}", True, 'Black')
+            lifes_text_rect = lifes_text.get_rect(midtop=(SCREEN_WIDTH/2, 10))
+            screen.blit(lifes_text,lifes_text_rect)
+
+            time_text = font.render(f"Time: {PLAY_TIME_SECONDS - left_time}", True, 'Black')
             time_text_rect = time_text.get_rect(topright=(SCREEN_WIDTH - 10, 10))
             screen.blit(time_text,time_text_rect)
 
-            if PLAY_TIME_SECONDS - left_time <= 0:
+            if PLAY_TIME_SECONDS - left_time <= 0 or lifes <= 0:
                 game_mode = 'gameover' 
 
         case 'gameover':
-            print(points)
             screen.fill((0,0,0))
             font = pygame.font.Font(None, 60)
 
@@ -152,6 +159,7 @@ while True:
             if restart_text_rect.collidepoint(mouse_pos) and clicked:
                 game_mode = 'running'
                 points = 0
+                lifes = 3
                 started_time = pygame.time.get_ticks()
 
     pygame.display.update()
