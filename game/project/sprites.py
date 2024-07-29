@@ -9,8 +9,6 @@ class Block(pygame.sprite.Sprite):
         self.index=index
         self.number=None
         self.in_sum = None
-        self.time_clicked = None
-
     def setNumber(self, numbers):
 
         self.image = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE), pygame.SRCALPHA)
@@ -27,7 +25,6 @@ class Block(pygame.sprite.Sprite):
         self.image.blit(self.texto_renderizado, self.texto_rect)
 
     def checkClick(self, points, lifes):
-        self.time_clicked=pygame.time.get_ticks()
         self.image.fill((0,0,0,0))
         self.fonte = pygame.font.Font(None, 30)
         if self.in_sum:
@@ -40,10 +37,3 @@ class Block(pygame.sprite.Sprite):
             self.texto_rect = self.texto_renderizado.get_rect(center=(SQUARE_SIZE // 2, SQUARE_SIZE // 2))
             self.image.blit(self.texto_renderizado, self.texto_rect)
             return (points, lifes - 1)
-""" 
-    def update(self):
-        if self.time_clicked != None:
-            if pygame.time.get_ticks() - self.time_clicked > 1000:
-                self.time_clicked=None
-                reset=True
-                return reset """
