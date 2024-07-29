@@ -1,78 +1,25 @@
 import pygame
-from gerador import gera_numeros, check_sum
+from project.settings import *
+from project.gerador import gera_numeros
+from project.sprites import *
 from sys import exit
 
 pygame.init()
 pygame.display.set_caption("TESTE")
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-FLOOR_HEIGHT = 50
-SQUARE_SIZE = 100
-
-PLAY_TIME_SECONDS = 10
-
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 
-class Block(pygame.sprite.Sprite):
-    def __init__(self, index):
-        super().__init__()
-        self.colors = ['Blue', 'Green', 'Red']
-        self.index=index
-        self.number=None
-        self.in_sum = None
-        self.time_clicked = None
-
-    def setNumber(self, numbers):
-
-        self.image = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE), pygame.SRCALPHA)
-        self.image.fill(self.colors[self.index])
-        self.rect = self.image.get_rect()
-        self.rect.midbottom = (SCREEN_WIDTH/2, SCREEN_HEIGHT-FLOOR_HEIGHT-self.index*SQUARE_SIZE)
-
-        self.in_sum = check_sum(self.index, numbers)
-        self.number = numbers[self.index]
-
-        self.fonte = pygame.font.Font(None, 50)
-        self.texto_renderizado = self.fonte.render(str(self.number), True, (0, 0, 0))  
-        self.texto_rect = self.texto_renderizado.get_rect(center=(SQUARE_SIZE // 2, SQUARE_SIZE // 2))
-        self.image.blit(self.texto_renderizado, self.texto_rect)
-
-    def checkClick(self):
-        global points, lifes
-        self.time_clicked=pygame.time.get_ticks()
-        self.image.fill((0,0,0,0))
-        self.fonte = pygame.font.Font(None, 30)
-        if self.in_sum:
-            points+=1
-            self.texto_renderizado = self.fonte.render("RIGHT", True, (0, 255, 0))  
-            self.texto_rect = self.texto_renderizado.get_rect(center=(SQUARE_SIZE // 2, SQUARE_SIZE // 2))
-            self.image.blit(self.texto_renderizado, self.texto_rect)
-        else:
-            lifes -= 1
-            self.texto_renderizado = self.fonte.render("WRONG", True, (255, 0, 0))  
-            self.texto_rect = self.texto_renderizado.get_rect(center=(SQUARE_SIZE // 2, SQUARE_SIZE // 2))
-            self.image.blit(self.texto_renderizado, self.texto_rect)
-
-    def update(self):
-        global reset
-        if self.time_clicked != None:
-            if pygame.time.get_ticks() - self.time_clicked > 1000:
-                reset=True
-                self.time_clicked=None
-
-
 block_group = pygame.sprite.Group()
-blocks = [Block(0), Block(1), Block(2)]
-for b in blocks:
-    block_group.add(b)
+for i in range(3):
+    block_group.add(Block(i))
 
-reset=True
 points = 0
 lifes = 3
-game_mode = 'menu'
 started_time = None
+reset = True
+game_mode = 'menu'
+clicked_time = None
 
 while True:
 
@@ -84,7 +31,8 @@ while True:
             mouse_pos = event.pos 
             for b in block_group:
                 if b.rect.collidepoint(mouse_pos):
-                    b.checkClick()
+                    points, lifes = b.checkClick(points, lifes)
+                    clicked_time = pygame.time.get_ticks()
                     print(f"Block clicked! {b.number}")
 
     match game_mode:
@@ -104,6 +52,7 @@ while True:
                 started_time = pygame.time.get_ticks()
                 points = 0
                 lifes = 3
+                clicked_time = None
 
         case 'running':
 
@@ -113,10 +62,14 @@ while True:
             pygame.draw.rect(screen, (200,200,200), (0,SCREEN_HEIGHT-FLOOR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT))
 
             if reset:
-                numbers = gera_numeros()
-                for i in range(3):
-                    blocks[i].setNumber(numbers)
-                reset = not(reset)
+                numbers = gera_numeros(NUMBERS_RANGE)
+                for b in block_group:
+                    b.setNumber(numbers)
+                reset = False
+            else:
+                if clicked_time != None and (pygame.time.get_ticks() - clicked_time) > 1000:
+                    reset = True
+                    clicked_time = None
 
             block_group.update()
             block_group.draw(screen)
@@ -158,9 +111,10 @@ while True:
             clicked = pygame.mouse.get_pressed()[0]
             if restart_text_rect.collidepoint(mouse_pos) and clicked:
                 game_mode = 'running'
+                started_time = pygame.time.get_ticks()
                 points = 0
                 lifes = 3
-                started_time = pygame.time.get_ticks()
+                clicked_time = None
 
     pygame.display.update()
     clock.tick(60)      

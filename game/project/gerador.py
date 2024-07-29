@@ -1,9 +1,9 @@
 import random
 
-def gera_numeros():
-    x = random.randint(1, 10)
-    y = random.randint(1, 10)
-    z = random.randint(1, 10)
+def gera_numeros(range):
+    x = random.randint(1, range)
+    y = random.randint(1, range)
+    z = random.randint(1, range)
     
     w = random.choice([x + y, x + z, y + z])
     
