@@ -53,6 +53,7 @@ while True:
                 points = 0
                 lifes = 3
                 clicked_time = None
+                reset = True
 
         case 'running':
 
@@ -115,6 +116,7 @@ while True:
                 points = 0
                 lifes = 3
                 clicked_time = None
+                reset = True
 
     pygame.display.update()
     clock.tick(60)      

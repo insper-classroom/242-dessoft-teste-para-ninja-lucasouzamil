@@ -9,6 +9,7 @@ class Block(pygame.sprite.Sprite):
         self.index=index
         self.number=None
         self.in_sum = None
+        
     def setNumber(self, numbers):
 
         self.image = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE), pygame.SRCALPHA)
